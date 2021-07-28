@@ -1,3 +1,4 @@
+#Ritik kumar
 length = [1,2,3,4,5,6,7,8]
 prices = [1,5,8,9,10,17,17,20]
 ans = 0
