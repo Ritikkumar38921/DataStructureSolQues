@@ -1,103 +1,82 @@
 #include<bits/stdc++.h>
 using namespace std;
-// coin changing problem...
 
-int coinChangeProblem(int **dp,int* arr,int n,int val){
-	if(val == 0){
-		return 1;
-	}
-	if(val < 0 || n == 0){
-		return 0;
-	}
-	if(dp[n-1][val] > 0){
-		return dp[n-1][val];
-	}
-	dp[n-1][val] = coinChangeProblem(dp,arr,n,val-arr[n-1]) + coinChangeProblem(dp,arr,n-1,val);
-	return dp[n-1][val];
-}
+// findin minimum square that is needed to make a perticular number.
 
-int coinChangeProblem(int *arr,int n,int val){
-	if(n == 0 || val == 0){
-		return 0;
-	}
-
-	int dp[n][val+1];
-	for(int i = 0;i<n;i++){
-		for(int j=0;j<=val;j++){
-			dp[i][j] = 0;
+class Global{
+	public:
+		int minimumSquare(int x){
+			if(x == 0 || x == 1 || x == 2 || x == 3){
+			return x;
 		}
-	}
-	for(int i = 0 ; i < n ; i++){
-
-		cout << i << " - > "<<endl;
-		for(int j = 0 ; j <= val; j++){
-			if(i == 0 && j == 0){
-				dp[i][j] = 1;
-			}else if(i == 0){
-				if(arr[i] <= j)
-					dp[i][j] = dp[i][j - arr[i]];
-			}else if(j == 0){
-				dp[i][j] = dp[i-1][j];
-			}else{
-				if(arr[i] > j){
-					dp[i][j] = dp[i-1][j]; 
-				}else{
-					dp[i][j] = dp[i-1][j] + dp[i][j - arr[i]];
+		int min = INT_MAX;
+		for(int i = 1; i <= sqrt(x);i++){
+			int temp =  minimumSquare(x-(i*i));
+			if(min > temp){
+				min = temp;
 				}
 			}
-			cout << dp[i][j] << " ";
+			return (min + 1);
 		}
-		cout << endl;
-	}
-	for(int i = 0; i < n ; i++){
-		for(int j=0;j<=val;j++){
-			cout << dp[i][j]<< " ";
-		}
-		cout << endl;
-	}
-	return dp[n-1][val];
-}
 
-int bestAppraoach(int *coins,int n,int val){
-	if(n == 0 || val == 0){
-		return 0;
-	}
-	int *dp = new int[val + 1];
-	for(int  i = 0;i<=val;i++){
-		dp[i] = 0;
-	}
-	dp[0] = 1;
-	for(int i = 0 ; i<n;i++){
-		for(int j=coins[i];j <= val ; j++){
-			dp[j] += dp[j - coins[i]];
+		int minimumSquare(int x,int *dp){
+			if(x == 0 || x == 1 || x == 2 || x == 3){
+				return x;
+			}
+			if(dp[x] != -1){
+				return dp[x];
+			}
+			int min = INT_MAX;
+			for(int i = 1;i<=sqrt(x);i++){
+				int smallAns = minimumSquare(x - (i * i),dp);
+				if(smallAns < min){
+					min = smallAns;
+				}
+			}
+			dp[x] = min + 1;
+			return dp[x];
 		}
+};
+
+int minimum(int *dp,int x){
+	if(x == 0 || x == 1 || x == 2 || x == 3){
+		return x;
 	}
-	return dp[val];
+	for(int i = 4;i<=x;i++){
+		int min = INT_MAX;
+		int index = -1;
+		for(int j = 1;j<=sqrt(i);j++){
+			if(min > (dp[i - (j*j)])){
+				min = dp[i - (j*j)];
+				 index = i - (j*j);
+			}
+		}
+		dp[i] = min + 1;
+		cout << i << " " << index <<  " + " << dp[i]<<endl;
+	}
+	return dp[x];
 }
 
 int main(){
-	int n,val;
-	cin >> n >> val;
-	int *arr = new int[n];
-	for(int i=0;i<n;i++){
-		cin >> arr[i];
+	Global* obj = new Global();
+	int x;
+	cin >> x;
+	int *dp = new int[x+1];
+	for(int i = 0;i<=x;i++){
+		dp[i] = -1;
 	}
-	int **dp1 = new int*[n];
-	for(int i = 0;i<n;i++){
-		dp1[i] = new int[val+1];
+	dp[0] = 0;
+	dp[1] = 1;
+	dp[2] = 2;
+	dp[3] = 3;
+	int ans = minimum(dp,x);
+	cout << " ans : " << ans << endl;
+
+	for(int i=0;i<=x;i++){
+		cout << dp[i] << " ";
 	}
-	for(int i = 0; i < n ; i++){
-		for(int j=0;j<=val;j++){
-			dp1[i][j] = 0;
-		}
-	}
-	int ans = bestAppraoach(arr,n,val);
-	int Ans = coinChangeProblem(dp1,arr,n,val);
-	cout<<ans<<" " <<Ans<<endl;
 	return 0;
 }
-
-
 
 
 
