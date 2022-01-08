@@ -1,50 +1,63 @@
-#include<bits/stdc++.h>
+
+#include<iostream>
+#include<limits.h>
 using namespace std;
 
+/// travelling salesman problem .
+int count = 0;
+int mat[4][4] = {
+	{0,20,42,25},
+	{20,0,30,34},
+	{42,30,0,10},
+	{25,34,10,0}
+};
 
-// find the fibbonacci no.
-int fib(int n,int* dp){
-	if(n == 0 || n == 1){
-		return n;
-	}
-	if(dp[n] != -1){
-		return dp[n];
-	}
-	dp[n] = fib(n-1,dp) + fib(n-2,dp);
-	return dp[n];
+
+
+int min(int a,int b){
+	return (a > b)?b:a;
 }
 
-int fibbonacci(int* dp,int n){
-	if(n == 0 || n == 1){
-		return n;
+int tsp(int dp[4][16],int mask,int src,int last,int init){
+	count++;
+	if(mask == (1 << 4)-1){
+		return mat[src][init];
 	}
-	for(int i = 2;i<=n;i++){
-		dp[i] = dp[i-1] + dp[i-2];
+	if(dp[src][mask] != 0){
+		return dp[src][mask];
 	}
-	return dp[n];
+
+	int ans = INT_MAX;
+	for(int city=0;city<4;city++){
+		if((mask & (1 << city)) == 0){
+			 ans = min(ans ,tsp(dp,mask|(1 << city),city,last,init)) + mat[src][city];
+		}
+	}
+	dp[src][mask] = ans;
+
+	return ans;
 }
 
 int main(){
-	int n;
-	cin >> n;
-	int *dp = new int[n+1];
-	for(int i = 0; i<=n ; i++){
-		dp[i] = -1;
-	}
-	dp[0] = 0;
-	dp[1] = 1;
-	int ans = fibbonacci(dp,n);
-	cout << " ans : "<< ans << endl;
-	for(int i=0;i<=n;i++){
-		cout << dp[i] << " ";
-	}
+	int src;
+	cin >> src;
+	int allVisitedMask = 0;
+	int temp = 1;
+	int prev = temp;
+	
+	int dp[4][16];
+	for(int i=0;i<4;i++){
+		for(int j = 0;j<16;j++){
+			dp[i][j] = 0;
+		}
+	}	
+	int ans = tsp(dp,src,src,allVisitedMask,src);
+	cout << " minimum answer to reach all the cities are : "<<ans<<endl;
+	cout << " count : "<< count<<endl;
 
+	
 	return 0;
 }
-
-
-
-
 
 
 
