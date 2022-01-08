@@ -1,7 +1,14 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-//longest increasing subsequences with patience sorting technique
+//  patience sort
+// this is sorting technique which is based on the concept of tash
+// we can only put a value over other no. if that no. is smaller than existed top value
+// of the line.
+// we only compare the top value of all pile and if that value is larger as compared to 
+// other then make the separate pile.
+
+
 
 struct node{
 	node* link;
@@ -27,9 +34,16 @@ void printFunc(node* root){
 		t = t->link;
 	}
 }
-int  patienceSort(int* arr,int n){
+void patienceSort(int* arr,int n){
 	if(n == 0 || n == 1){
-		return n;
+		return;
+	}else if(n == 2){
+		if(arr[0] > arr[1]){
+			int temp = arr[0];
+			arr[0] = arr[1];
+			arr[1] = temp;
+		}
+		return;
 	}
 	struct node* root;
 	root = NULL;
@@ -62,33 +76,49 @@ int  patienceSort(int* arr,int n){
 			}	
 		}
 	}
-	int count = 0;
+  cout << endl;
+  cout << endl;
+	int i = 0;
 	while(root != NULL){
-		cout << root->st.top() << " ";
-		count++;
-		root = root->link;
+		node* temp = root;
+		node* address = NULL;
+		int min = INT_MAX;
+		while(temp != NULL){
+			if(min > temp->st.top()){
+				min = temp->st.top();
+				address = temp;
+			}
+			temp = temp->link;
+		}
+		arr[i] = min;
+		i++;
+		address->st.pop();
+		if(address->st.size() == 0){
+			if(root == address){
+				root = address->link;
+			}else{
+				address->prev->link = address->link;
+			}
+		}
 	}
-	return count;
 }
 
 
-
-
-int LIS(int *arr,int n){
-   return patienceSort(arr,n);
-}
 
 int main(){
 	int n;
 	cin >> n;
 	int* arr = new int[n];
-	for(int i=0;i<n;i++){
+	for(int i = 0 ; i < n ; i++){
 		cin >> arr[i];
 	}
-	int ans = LIS(arr,n);
-	cout << " \nlongest increasing subSequence is "<< ans << endl;
+	patienceSort(arr,n);
+	for(int i=0;i<n;i++){
+		cout << arr[i] << " ";
+	}
 	return 0;
 }
+
 
 
 
