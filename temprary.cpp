@@ -1,95 +1,113 @@
 #include<bits/stdc++.h>
 using namespace std;
+// coin changing problem...
 
-// knapsack problem ...
-
-
-int recursion(int values[],int weight[],int knapSack,int n,int currProfit){
-	if(n == 0 || knapSack == 0){
-		return currProfit;
-	}else if(knapSack < 0){
-		return -1;
+int coinChangeProblem(int **dp,int* arr,int n,int val){
+	if(val == 0){
+		return 1;
 	}
-
-	if(weight[n-1] > knapSack){
-		return recursion(values,weight,knapSack, n-1 ,currProfit);
+	if(val < 0 || n == 0){
+		return 0;
 	}
-	else{
-	int ans = recursion(values,weight,knapSack - weight[n-1],n-1,currProfit+values[n-1]);
-	int ans1 = recursion(values,weight,knapSack,n-1,currProfit);
-	return (ans > ans1)?ans:ans1;
-
+	if(dp[n-1][val] > 0){
+		return dp[n-1][val];
 	}
+	dp[n-1][val] = coinChangeProblem(dp,arr,n,val-arr[n-1]) + coinChangeProblem(dp,arr,n-1,val);
+	return dp[n-1][val];
 }
 
-int bottomUp(int values[],int weight[],int knapsack,int n,int profit){
+int coinChangeProblem(int *arr,int n,int val){
+	if(n == 0 || val == 0){
+		return 0;
+	}
 
-	int dp[n+1][knapsack + 1];
-	for(int i = 0;i<=n;i++){
-		for(int j = 0;j<=knapsack;j++){
+	int dp[n][val+1];
+	for(int i = 0;i<n;i++){
+		for(int j=0;j<=val;j++){
 			dp[i][j] = 0;
 		}
 	}
+	for(int i = 0 ; i < n ; i++){
 
-	for (int i = 1; i <= n; i++)
-	{
-		for(int j = 1;j<= knapsack;j++){
-			if(weight[i-1] <= j){
-				dp[i][j] = (dp[i-1][j] < (values[i]+dp[i-1][j - weight[i-1]]))?values[i-1]+dp[i-1][j - weight[i-1]]:dp[i-1][j];
-			}else{
+		cout << i << " - > "<<endl;
+		for(int j = 0 ; j <= val; j++){
+			if(i == 0 && j == 0){
+				dp[i][j] = 1;
+			}else if(i == 0){
+				if(arr[i] <= j)
+					dp[i][j] = dp[i][j - arr[i]];
+			}else if(j == 0){
 				dp[i][j] = dp[i-1][j];
+			}else{
+				if(arr[i] > j){
+					dp[i][j] = dp[i-1][j]; 
+				}else{
+					dp[i][j] = dp[i-1][j] + dp[i][j - arr[i]];
+				}
 			}
-		}
-	}
-	
-	for(int i = 0;i<=n;i++){
-		for(int j = 0 ; j <= knapsack ; j++){
 			cout << dp[i][j] << " ";
 		}
 		cout << endl;
 	}
-	return dp[n][knapsack];
+	for(int i = 0; i < n ; i++){
+		for(int j=0;j<=val;j++){
+			cout << dp[i][j]<< " ";
+		}
+		cout << endl;
+	}
+	return dp[n-1][val];
 }
 
-int recursionMemoization(int **dp,int values[],int weight[],int knapSack,int n,int currProfit){
-	if(n == 0 || knapSack == 0){
-		return currProfit;
-	}else if(knapSack < 0){
-		return -1;
+int bestAppraoach(int *coins,int n,int val){
+	if(n == 0 || val == 0){
+		return 0;
 	}
-	if(dp[n-1][knapSack] != 0){
-		return dp[n - 1][knapSack];
+	int *dp = new int[val + 1];
+	for(int  i = 0;i<=val;i++){
+		dp[i] = 0;
 	}
-
-	if(weight[n-1] > knapSack){
-		dp[n-1][knapSack] = recursion(values,weight,knapSack, n-1 ,currProfit);
-	}else{
-		int ans = recursionMemoization(dp,values,weight,knapSack - weight[n-1],n-1,currProfit+values[n-1]);
-		int ans1 = recursionMemoization(dp,values,weight,knapSack,n-1,currProfit);
-		dp[n-1][knapSack]  = (ans > ans1)?ans:ans1;
+	dp[0] = 1;
+	for(int i = 0 ; i<n;i++){
+		for(int j=coins[i];j <= val ; j++){
+			dp[j] += dp[j - coins[i]];
+		}
 	}
-	return dp[n-1][knapSack];
+	return dp[val];
 }
 
 int main(){
-	int values[] = {60,100,150};
-	int weight[] = {15,30,45};
-	int knapSack = 50;
-	int **dp = new int*[3];
-	for(int i=0;i<3;i++){
-		dp[i] = new int[51];
+	int n,val;
+	cin >> n >> val;
+	int *arr = new int[n];
+	for(int i=0;i<n;i++){
+		cin >> arr[i];
 	}
-	for(int i = 0;i<3;i++){
-		for(int j = 0 ; j <= 50 ; j++){
-			dp[i][j] = 0;
+	int **dp1 = new int*[n];
+	for(int i = 0;i<n;i++){
+		dp1[i] = new int[val+1];
+	}
+	for(int i = 0; i < n ; i++){
+		for(int j=0;j<=val;j++){
+			dp1[i][j] = 0;
 		}
 	}
-	int ans = bottomUp(values,weight,knapSack,3,0);
-	if(ans != -1){
-		cout << "maximum profit we can obtain : "<< ans << endl;
-	}
+	int ans = bestAppraoach(arr,n,val);
+	int Ans = coinChangeProblem(dp1,arr,n,val);
+	cout<<ans<<" " <<Ans<<endl;
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
